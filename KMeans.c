@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define DEBUG 0
 
 /*Structure for BMP Header*/
 struct bmpheader {
@@ -47,27 +48,33 @@ struct dibheader {
 
 
 struct color {
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
+    unsigned char intensity;
 };
 
 
 int BMPKMeans(struct color *image, int width, int height) {
-
+    int *pixel_arr = (int *) malloc(width*height*sizeof(int));
+    int i, j; 
+    #ifdef DEBUG
+        printf("Size of pixel array: %d", sizeof(*pixel_arr));
+    #endif
+    for(i=0;i<height; i++) {
+        for(j=0;j<width;j++) {
+            *(pixel_arr) = (image+j)->intensity;
+        }
+    }
     return 0;
 }
 
 
 void printColor(struct color *image, int width, int height) {
-    int i = 0;
     long long int image_size = sizeof(*image)*width*height;
-    while(image_size) {
-        printf("%d %d %d\n", (image+i)->r,(image+i)->g,(image+i)->b);
-        image_size-=3;          // printing 3 bytes at a time
+    int i=0;
+    while(i<image_size) {
+        printf("%d ", (image+i)->intensity);
         i++;
     }
-
+    printf("\n\nTotal count of pixels: %d\n", i);
 }
 
 
@@ -134,6 +141,9 @@ int main() {
     
     fclose(fp);                  // Close file pointer
     
+    #ifdef DEBUG
+        // printColor(image, header1.width, header1.height);
+    #endif
     status = BMPKMeans(image, header1.width, header1.height);
     if(status == -1) printf("\nFailed to successfully convert image\n");
     else printf("\nSuccessfully copied to PGM image\n");
