@@ -18,7 +18,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define DEBUG 
+#include <math.h>
+#define DEBUG 0
+#define MAX_INTENSITY 256
 
 /*Structure for BMP Header*/
 struct bmpheader {
@@ -57,9 +59,10 @@ struct color {
 int BMPHistEq(struct color *image, int width, int height) {
     int *pixel_arr = (int *) malloc(width*height*sizeof(int));
     int i, max_pixel_value=0, temp=0; 
-    int color_map[256] = {0};   // map of intensity values from 0-255
-    double PMF[256] = {0.0};
-    double CDF[256] = {0.0};
+    int color_map[MAX_INTENSITY] = {0};   // map of intensity values from 0-255
+    double PMF[MAX_INTENSITY] = {0.0};
+    double CDF[MAX_INTENSITY] = {0.0};
+    int DF[MAX_INTENSITY] = {0};
     int total_pixels = width*height;
 
     #ifdef DEBUG
@@ -81,11 +84,13 @@ int BMPHistEq(struct color *image, int width, int height) {
     // Count frequencies of pixel values in 0-255
     // and finding max pixel
     for(i=0; i<height*width; i++) {
-        if(max_pixel_value < *pixel_arr) 
-            max_pixel_value = *pixel_arr;
+        if(max_pixel_value < *(pixel_arr+i)) 
+            max_pixel_value = *(pixel_arr+i);
         color_map[*(pixel_arr+i)]++;
     }
 
+    printf("\nMax pixel value is %d", max_pixel_value);
+    
     for(i=0; i<width*height; i++) {
         PMF[*(pixel_arr+i)] = (double) color_map[*(pixel_arr+i)]/max_pixel_value;
     }
@@ -96,7 +101,16 @@ int BMPHistEq(struct color *image, int width, int height) {
         CDF[*(pixel_arr+i)] = temp;
     }
 
-    
+    // CDF value with (Gray levels (minus) 1) 
+    for(i=0; i<width*height; i++) {
+        temp = temp + PMF[*(pixel_arr+i)];
+        DF[*(pixel_arr+i)] = round(max_pixel_value * CDF[*(pixel_arr+i)]);
+    }
+
+    for(i=0; i<width*height; i++) {
+        printf("\n%d : %d", *(pixel_arr+i), DF[*(pixel_arr+i)]);
+    }
+
 
 
     free(pixel_arr);
