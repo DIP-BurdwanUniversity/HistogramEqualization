@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define DEBUG 0
+#define DEBUG 
 
 /*Structure for BMP Header*/
 struct bmpheader {
@@ -54,20 +54,50 @@ struct color {
 };
 
 
-int BMPKMeans(struct color *image, int width, int height) {
+int BMPHistEq(struct color *image, int width, int height) {
     int *pixel_arr = (int *) malloc(width*height*sizeof(int));
-    int i, j; 
+    int i, max_pixel_value=0, temp=0; 
+    int color_map[256] = {0};   // map of intensity values from 0-255
+    double PMF[256] = {0.0};
+    double CDF[256] = {0.0};
+    int total_pixels = width*height;
+
     #ifdef DEBUG
-        printf("Size of pixel array: %d\n\n", sizeof(*pixel_arr));
+        // printf("Size of pixel array: %d\n\n", sizeof(*pixel_arr));
     #endif
+    
     for(i=0;i<height*width; i++) {
-        *(pixel_arr+i) = image[i].r;
-        // printf("%d ", image[i].r);
+        *(pixel_arr+i) = image[i].r;    // red pixel only
     }
-    printf("\nPrinting pixel array:\n");
-    for(i=0;i<height*width; i++) {
-        printf("%d ", *pixel_arr);
+
+    #ifdef DEBUG
+        // printf("\nPrinting pixel array:\n");
+        // for(i=0;i<height*width; i++) {
+        //     printf("%d ", *pixel_arr);
+        //     pixel_arr++;
+        // }
+    #endif
+
+    // Count frequencies of pixel values in 0-255
+    // and finding max pixel
+    for(i=0; i<height*width; i++) {
+        if(max_pixel_value < *pixel_arr) 
+            max_pixel_value = *pixel_arr;
+        color_map[*(pixel_arr+i)]++;
     }
+
+    for(i=0; i<width*height; i++) {
+        PMF[*(pixel_arr+i)] = (double) color_map[*(pixel_arr+i)]/max_pixel_value;
+    }
+
+    // Calculate CDF (Cumulative Distributive Function)
+    for(i=0; i<width*height; i++) {
+        temp = temp + PMF[*(pixel_arr+i)];
+        CDF[*(pixel_arr+i)] = temp;
+    }
+
+    
+
 
     free(pixel_arr);
     return 0;
@@ -92,7 +122,7 @@ int main() {
     int i,j;                            // Loop variables
     int status;
     printf("*****************************************************************\n");
-    printf("\tKMeans Clustering on BMP Image (24-Bit non alpha)\n");
+    printf("\tHistogram Equalization on BMP Image (24-Bit non alpha)\n");
     printf("*****************************************************************\n\n");
     printf("\nEnter a BMP image filename: ");
     scanf("%s", filename);
@@ -149,11 +179,11 @@ int main() {
     fclose(fp);                  // Close file pointer
     
     #ifdef DEBUG
-        printColor(image, header1.width, header1.height);
+        // printColor(image, header1.width, header1.height);
     #endif
-    // status = BMPKMeans(image, header1.width, header1.height);
-    // if(status == -1) printf("\nFailed to successfully convert image\n");
-    // else printf("\nSuccessfully copied to PGM image\n");
+    status = BMPHistEq(image, header1.width, header1.height);
+    if(status == -1) printf("\nFailed to successfully convert image\n");
+    else printf("\nSuccessfully equalized image\n");
 
     return 0;
 }
