@@ -54,22 +54,24 @@ struct color {
 };
 
 
-// int BMPKMeans(struct color *image, int width, int height) {
-//     int *pixel_arr = (int *) malloc(width*height*sizeof(int));
-//     int i, j; 
-//     #ifdef DEBUG
-//         printf("Size of pixel array: %d", sizeof(*pixel_arr));
-//     #endif
-//     for(i=0;i<height*width; i++) {
-//         pixel_arr = (int)((image++)->intensity);
-//         *pixel_arr++;
-//     }
-//     printf("\nPrinting pixel array:\n");
-//     for(i=0;i<height*width; i++) {
-//         printf("%d ", pixel_arr++);
-//     }
-//     return 0;
-// }
+int BMPKMeans(struct color *image, int width, int height) {
+    int *pixel_arr = (int *) malloc(width*height*sizeof(int));
+    int i, j; 
+    #ifdef DEBUG
+        printf("Size of pixel array: %d\n\n", sizeof(*pixel_arr));
+    #endif
+    for(i=0;i<height*width; i++) {
+        *(pixel_arr+i) = image[i].r;
+        // printf("%d ", image[i].r);
+    }
+    printf("\nPrinting pixel array:\n");
+    for(i=0;i<height*width; i++) {
+        printf("%d ", *pixel_arr);
+    }
+
+    free(pixel_arr);
+    return 0;
+}
 
 
 void printColor(struct color *image, int width, int height) {
