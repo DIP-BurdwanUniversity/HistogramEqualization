@@ -82,6 +82,7 @@ int BMPHistEq(struct color *image, int width, int height) {
         // }
     #endif
 
+    
     // Count frequencies of pixel values in 0-255
     // and finding max pixel
     for(i=0; i<height*width; i++) {
@@ -93,7 +94,7 @@ int BMPHistEq(struct color *image, int width, int height) {
     printf("\nMax pixel value is %d", max_pixel_value);
     
     for(i=0; i<MAX_INTENSITY; i++) {
-        PMF[i] = (double) color_map[i]/max_pixel_value;
+        PMF[i] = (double) color_map[i] / (double) total_pixels;
     }
 
     // Calculate CDF (Cumulative Distributive Function)
@@ -102,7 +103,6 @@ int BMPHistEq(struct color *image, int width, int height) {
         CDF[i] = temp;
     }
 
-
     // CDF value with (Gray levels (minus) 1) 
     for(i=0; i<MAX_INTENSITY; i++) {
         temp = temp + PMF[*(pixel_arr+i)];
@@ -110,15 +110,15 @@ int BMPHistEq(struct color *image, int width, int height) {
     }
 
     // print density function array...
-    // for(i=0; i<width*height; i++) {
-    //     printf("\n%d : %d", *(pixel_arr+i), DF[*(pixel_arr+i)]);
-    // }
-
-    // print CDF array...
-    printf("\n\n");
     for(i=0; i<MAX_INTENSITY; i++) {
-        printf("%d ", DF[i]);
+        printf("\n%d : %d", *(pixel_arr+i), DF[*(pixel_arr+i)]);
     }
+
+    // print DF array...
+    // printf("\n\n");
+    // for(i=0; i<MAX_INTENSITY; i++) {
+    //     printf("%d ", DF[i]);
+    // }
 
     free(pixel_arr);
     return 0;
