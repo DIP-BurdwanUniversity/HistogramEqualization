@@ -58,7 +58,8 @@ struct color {
 
 int BMPHistEq(struct color *image, int width, int height) {
     int *pixel_arr = (int *) malloc(width*height*sizeof(int));
-    int i, max_pixel_value=0, temp=0; 
+    int i, max_pixel_value=0;
+    double temp=0.0; 
     int color_map[MAX_INTENSITY] = {0};   // map of intensity values from 0-255
     double PMF[MAX_INTENSITY] = {0.0};
     double CDF[MAX_INTENSITY] = {0.0};
@@ -91,27 +92,33 @@ int BMPHistEq(struct color *image, int width, int height) {
 
     printf("\nMax pixel value is %d", max_pixel_value);
     
-    for(i=0; i<width*height; i++) {
-        PMF[*(pixel_arr+i)] = (double) color_map[*(pixel_arr+i)]/max_pixel_value;
+    for(i=0; i<MAX_INTENSITY; i++) {
+        PMF[i] = (double) color_map[i]/max_pixel_value;
     }
 
     // Calculate CDF (Cumulative Distributive Function)
-    for(i=0; i<width*height; i++) {
-        temp = temp + PMF[*(pixel_arr+i)];
-        CDF[*(pixel_arr+i)] = temp;
+    for(i=0; i<MAX_INTENSITY; i++) {
+        temp = temp + PMF[i];
+        CDF[i] = temp;
     }
+
 
     // CDF value with (Gray levels (minus) 1) 
-    for(i=0; i<width*height; i++) {
+    for(i=0; i<MAX_INTENSITY; i++) {
         temp = temp + PMF[*(pixel_arr+i)];
-        DF[*(pixel_arr+i)] = round(max_pixel_value * CDF[*(pixel_arr+i)]);
+        DF[i] = (int) round(max_pixel_value * CDF[i]);
     }
 
-    for(i=0; i<width*height; i++) {
-        printf("\n%d : %d", *(pixel_arr+i), DF[*(pixel_arr+i)]);
+    // print density function array...
+    // for(i=0; i<width*height; i++) {
+    //     printf("\n%d : %d", *(pixel_arr+i), DF[*(pixel_arr+i)]);
+    // }
+
+    // print CDF array...
+    printf("\n\n");
+    for(i=0; i<MAX_INTENSITY; i++) {
+        printf("%d ", DF[i]);
     }
-
-
 
     free(pixel_arr);
     return 0;
