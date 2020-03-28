@@ -56,7 +56,7 @@ struct color {
 };
 
 
-int BMPHistEq(struct color *image, int width, int height) {
+int BMPHistEq(struct color *image, int width, int height, struct bmpheader h0, struct dibheader h1) {
     int *pixel_arr = (int *) malloc(width*height*sizeof(int));
     int i, max_pixel_value=0;
     double temp=0.0; 
@@ -65,6 +65,8 @@ int BMPHistEq(struct color *image, int width, int height) {
     double CDF[MAX_INTENSITY] = {0.0};
     int DF[MAX_INTENSITY] = {0};
     int total_pixels = width*height;
+    FILE *fp;
+    char filename[100];
 
     #ifdef DEBUG
         // printf("Size of pixel array: %d\n\n", sizeof(*pixel_arr));
@@ -110,15 +112,24 @@ int BMPHistEq(struct color *image, int width, int height) {
     }
 
     // print density function array...
-    for(i=0; i<MAX_INTENSITY; i++) {
-        printf("\n%d : %d", *(pixel_arr+i), DF[*(pixel_arr+i)]);
-    }
-
-    // print DF array...
-    // printf("\n\n");
     // for(i=0; i<MAX_INTENSITY; i++) {
-    //     printf("%d ", DF[i]);
+    //     printf("\n%d : %d", *(pixel_arr+i), DF[*(pixel_arr+i)]);
     // }
+
+    // Write equalized image to file...
+    printf("\nEnter name of histogram equalized image file: ");
+    scanf("%s", filename);
+    if((fp=fopen(filename, "wb")) == NULL) {
+        printf("\nError, creating BMP file\n");
+        return -1;
+    }
+    printf("\n");
+    fwrite(&h0,14,sizeof(struct bmpheader),fp);
+    fwrite("\n",1,sizeof(unsigned char),fp);
+    fwrite(&h1,40,sizeof(struct dibheader),fp);
+    fwrite("\n",1,sizeof(unsigned char),fp);
+
+    // Copy modified pixels...
 
     free(pixel_arr);
     return 0;
@@ -202,7 +213,7 @@ int main() {
     #ifdef DEBUG
         // printColor(image, header1.width, header1.height);
     #endif
-    status = BMPHistEq(image, header1.width, header1.height);
+    status = BMPHistEq(image, header1.width, header1.height, header0, header1);
     if(status == -1) printf("\nFailed to successfully convert image\n");
     else printf("\nSuccessfully equalized image\n");
 
