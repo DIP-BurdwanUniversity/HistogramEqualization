@@ -18,4 +18,4 @@ for(i=0; i<width*height; i++) {
 
 #### Screenshots
 
-![Output terminal](misc\term.png)
+![Output terminal](misc/term.png)
