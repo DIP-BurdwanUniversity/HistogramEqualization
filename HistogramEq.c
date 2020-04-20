@@ -58,7 +58,8 @@ struct color {
 
 int BMPHistEq(struct color *image, int width, int height, struct bmpheader h0, struct dibheader h1) {
     int *pixel_arr = (int *) malloc(width*height*sizeof(int));
-    int i, max_pixel_value=0;
+    // int *mod_pixel_arr = (int *) malloc(width*height*sizeof(int));
+    int i, j, max_pixel_value=0;
     double temp=0.0; 
     int color_map[MAX_INTENSITY] = {0};   // map of intensity values from 0-255
     double PMF[MAX_INTENSITY] = {0.0};
@@ -116,6 +117,10 @@ int BMPHistEq(struct color *image, int width, int height, struct bmpheader h0, s
     //     printf("\n%d : %d", *(pixel_arr+i), DF[*(pixel_arr+i)]);
     // }
 
+    for(i=0; i<width*height; i++) {
+        image[i].r = DF[*(pixel_arr+i)];
+    }
+
     // Write equalized image to file...
     printf("\nEnter name of histogram equalized image file: ");
     scanf("%s", filename);
@@ -123,13 +128,44 @@ int BMPHistEq(struct color *image, int width, int height, struct bmpheader h0, s
         printf("\nError, creating BMP file\n");
         return -1;
     }
-    printf("\n");
-    fwrite(&h0,14,sizeof(struct bmpheader),fp);
-    fwrite("\n",1,sizeof(unsigned char),fp);
-    fwrite(&h1,40,sizeof(struct dibheader),fp);
-    fwrite("\n",1,sizeof(unsigned char),fp);
+    // printf("\n");
+    // fwrite(&h0,14,sizeof(struct bmpheader),fp);
+    // fwrite("\n",1,sizeof(unsigned char),fp);
+    // fwrite(&h1,40,sizeof(struct dibheader),fp);
+    // fwrite("\n",1,sizeof(unsigned char),fp);
+
+
+
+
+    fwrite(&h0.id1, 1, sizeof(h0.id1), fp);
+    fwrite(&h0.id2, 1, sizeof(h0.id2), fp);
+    fwrite(&h0.size, 1, sizeof(h0.size), fp);
+    fwrite(&h0.app_spec_1, 1, sizeof(h0.app_spec_1), fp);
+    fwrite(&h0.app_spec_2, 1, sizeof(h0.app_spec_2), fp);
+    fwrite(&h0.offset, 1, sizeof(h0.offset), fp);
+    
+    fwrite(&h1.size, 1, sizeof(h1.size), fp);
+    fwrite(&h1.width, 1, sizeof(h1.width), fp);
+    fwrite(&h1.height, 1, sizeof(h1.height), fp);
+    fwrite(&h1.color_planes, 1, sizeof(h1.color_planes), fp);
+    fwrite(&h1.bits_per_pixel, 1, sizeof(h1.bits_per_pixel), fp);
+    fwrite(&h1.compression, 1, sizeof(h1.compression), fp);
+    fwrite(&h1.size_with_padding, 1, sizeof(h1.size_with_padding), fp);
+    fwrite(&h1.resolution_horizontal, 1, sizeof(h1.resolution_horizontal), fp);
+    fwrite(&h1.resolution_vertical, 1, sizeof(h1.resolution_vertical), fp);
+    fwrite(&h1.color_palette, 1, sizeof(h1.color_palette), fp);
+    fwrite(&h1.important_colors, 1, sizeof(h1.important_colors), fp);
+
+    printf("Debug: File pointer is at %d bytes\n", ftell(fp));
+
 
     // Copy modified pixels...
+    fseek(fp,54,SEEK_SET);
+
+    for(i=0; i<height; i++)
+        for(j=0; j<width; j++)
+            fwrite((image+i*width+j),1,sizeof(struct color),fp);
+
 
     free(pixel_arr);
     return 0;
