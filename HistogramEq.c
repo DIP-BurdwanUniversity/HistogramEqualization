@@ -1,5 +1,5 @@
-/* 
-Copyright (C) 2016-2020 Biswajit Roy
+/*
+Copyright (C) 2016-2020 Digital Image Processing Team
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -31,7 +31,6 @@ struct bmpheader {
     unsigned short int app_spec_2;     // Application specific
     unsigned int offset;               // Offset where the pixel array (bitmap data) can be found
 };
-
 
 /*Structure for DIB [Device Independent Bitmap] Header*/
 struct dibheader {
@@ -77,14 +76,6 @@ int BMPHistEq(struct color *image, int width, int height, struct bmpheader h0, s
         *(pixel_arr+i) = image[i].r;    // red pixel only
     }
 
-    #ifdef DEBUG
-        // printf("\nPrinting pixel array:\n");
-        // for(i=0;i<height*width; i++) {
-        //     printf("%d ", *pixel_arr);
-        //     pixel_arr++;
-        // }
-    #endif
-
     
     // Count frequencies of pixel values in 0-255
     // and finding max pixel
@@ -112,10 +103,6 @@ int BMPHistEq(struct color *image, int width, int height, struct bmpheader h0, s
         DF[i] = (int) round(max_pixel_value * CDF[i]);
     }
 
-    // print density function array...
-    // for(i=0; i<MAX_INTENSITY; i++) {
-    //     printf("\n%d : %d", *(pixel_arr+i), DF[*(pixel_arr+i)]);
-    // }
 
     for(i=0; i<width*height; i++) {
         image[i].r = DF[*(pixel_arr+i)];
@@ -128,14 +115,6 @@ int BMPHistEq(struct color *image, int width, int height, struct bmpheader h0, s
         printf("\nError, creating BMP file\n");
         return -1;
     }
-    // printf("\n");
-    // fwrite(&h0,14,sizeof(struct bmpheader),fp);
-    // fwrite("\n",1,sizeof(unsigned char),fp);
-    // fwrite(&h1,40,sizeof(struct dibheader),fp);
-    // fwrite("\n",1,sizeof(unsigned char),fp);
-
-
-
 
     fwrite(&h0.id1, 1, sizeof(h0.id1), fp);
     fwrite(&h0.id2, 1, sizeof(h0.id2), fp);
