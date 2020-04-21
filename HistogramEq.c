@@ -73,7 +73,7 @@ int BMPHistEq(struct color *image, int width, int height, struct bmpheader h0, s
     #endif
     
     for(i=0;i<height*width; i++) {
-        *(pixel_arr+i) = image[i].r;    // red pixel only
+        *(pixel_arr+i) = (image[i].r*0.2126) + (image[i].g*0.7152) + (image[i].b*0.0722);    
     }
 
     
@@ -106,6 +106,8 @@ int BMPHistEq(struct color *image, int width, int height, struct bmpheader h0, s
 
     for(i=0; i<width*height; i++) {
         image[i].r = DF[*(pixel_arr+i)];
+        image[i].g = DF[*(pixel_arr+i)];
+        image[i].b = DF[*(pixel_arr+i)];
     }
 
     // Write equalized image to file...
@@ -219,10 +221,10 @@ int main() {
     fseek(fp,54,SEEK_SET);      // Start of pixel array (bitmap data) -- Optional statement; already at 54th bytes
 
     // Populating image data...
-    for(i=0;i<header1.height;i++)
+    for(i=0;i<header1.height;i++) {
         for(j=0;j<header1.width;j++)
             fread((image+i*header1.width+j),sizeof(struct color),1,fp);
-    
+    }
     fclose(fp);                  // Close file pointer
     
     #ifdef DEBUG
